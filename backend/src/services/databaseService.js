@@ -607,6 +607,11 @@ class DatabaseService {
   // USERS
   // --------------------------------------------------------------------------
   async findUserByEmail(email) {
+    const demoUser = this.users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+    if (demoUser && (email.toLowerCase() === 'citizen@nexusclean.org' || email.toLowerCase() === 'admin@nexusclean.org')) {
+      return demoUser;
+    }
+
     if (db.isConfigured()) {
       try {
         const res = await db.query('SELECT * FROM users WHERE LOWER(email) = LOWER($1)', [email]);
@@ -627,6 +632,11 @@ class DatabaseService {
   }
 
   async findUserById(id) {
+    const demoUser = this.users.find((u) => u.id === id);
+    if (demoUser && (id === 'USR-CITIZEN-01' || id === 'USR-ADMIN-01')) {
+      return demoUser;
+    }
+
     if (db.isConfigured()) {
       try {
         const res = await db.query('SELECT * FROM users WHERE id = $1', [id]);

@@ -92,64 +92,27 @@ export const apiService = {
   // AUTHENTICATION
   // --------------------------------------------------------------------------
   async login(email, password, role = 'citizen') {
-    try {
-      const res = await apiRequest('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ email, password })
-      });
-      const user = res.user || res.data?.user;
-      const token = res.token || res.data?.token;
-      setStoredData(STORAGE_KEYS.AUTH, user);
-      setAuthToken(token);
-      return { success: true, user, token };
-    } catch (err) {
-      console.warn('[API Service] Backend login failed, falling back to local demo profile:', err.message);
-      const user = role === 'admin' || (email && email.toLowerCase().includes('admin'))
-        ? MOCK_USERS.admin
-        : MOCK_USERS.citizen;
-      setStoredData(STORAGE_KEYS.AUTH, user);
-      setAuthToken('mock-jwt-token-nexus-clean');
-      return { success: true, user, token: 'mock-jwt-token-nexus-clean' };
-    }
+    const res = await apiRequest('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password })
+    });
+    const user = res.user || res.data?.user;
+    const token = res.token || res.data?.token;
+    setStoredData(STORAGE_KEYS.AUTH, user);
+    setAuthToken(token);
+    return { success: true, user, token };
   },
 
   async register(userData) {
-    try {
-      const res = await apiRequest('/auth/register', {
-        method: 'POST',
-        body: JSON.stringify(userData)
-      });
-      const user = res.user || res.data?.user;
-      const token = res.token || res.data?.token;
-      setStoredData(STORAGE_KEYS.AUTH, user);
-      setAuthToken(token);
-      return { success: true, user, token };
-    } catch (err) {
-      console.warn('[API Service] Backend register failed, using local registration fallback:', err.message);
-      const newUser = {
-        id: `USR-${Date.now().toString().slice(-4)}`,
-        name: userData.name || 'New Citizen',
-        email: userData.email,
-        role: 'citizen',
-        location: userData.location || 'Central Ward',
-        ecoScore: {
-          total: 50,
-          max: 100,
-          level: 'Eco Starter (Tier I)',
-          monthlyImprovement: '+0%',
-          breakdown: [
-            { category: 'Waste Reporting', points: 10, max: 25 },
-            { category: 'Proper Segregation', points: 15, max: 30 },
-            { category: 'Community Participation', points: 15, max: 25 },
-            { category: 'Awareness Activities', points: 10, max: 20 }
-          ],
-          achievements: []
-        }
-      };
-      setStoredData(STORAGE_KEYS.AUTH, newUser);
-      setAuthToken('mock-jwt-token-nexus-clean');
-      return { success: true, user: newUser, token: 'mock-jwt-token-nexus-clean' };
-    }
+    const res = await apiRequest('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(userData)
+    });
+    const user = res.user || res.data?.user;
+    const token = res.token || res.data?.token;
+    setStoredData(STORAGE_KEYS.AUTH, user);
+    setAuthToken(token);
+    return { success: true, user, token };
   },
 
   getCurrentUser() {
@@ -231,52 +194,11 @@ export const apiService = {
 
   // POST /api/complaints
   async createComplaint(complaintData) {
-    try {
-      const res = await apiRequest('/complaints', {
-        method: 'POST',
-        body: JSON.stringify(complaintData)
-      });
-      return { success: true, data: res.data };
-    } catch (err) {
-      console.warn('[API Service] createComplaint backend failed, saving locally:', err.message);
-      const list = getStoredData(STORAGE_KEYS.COMPLAINTS, INITIAL_COMPLAINTS);
-      const newId = `NC-${1040 + list.length + 1}`;
-
-      const newComplaint = {
-        id: newId,
-        title: `${complaintData.category} at ${complaintData.area || 'Neighborhood'}`,
-        category: complaintData.category,
-        description: complaintData.description || 'Reported by citizen via Nexus Clean web app.',
-        address: complaintData.address || 'Street Location',
-        area: complaintData.area || 'Civil Lines',
-        priority: complaintData.aiAnalysis?.priority || 'High',
-        status: 'Pending',
-        submittedAt: new Date().toISOString(),
-        assignedTeam: 'Pending Dispatch',
-        beforeImage: complaintData.photoUrl || 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=800&q=80',
-        afterImage: null,
-        aiAnalysis: complaintData.aiAnalysis || {
-          detectedIssue: complaintData.category,
-          confidence: 94,
-          priority: 'HIGH',
-          suggestedAction: 'Schedule inspection within 4 hours.',
-          isPrototype: true
-        },
-        verification: null,
-        timeline: [
-          { step: 1, title: 'Complaint Submitted', time: 'Just now', completed: true, current: true, actor: 'Citizen' },
-          { step: 2, title: 'Admin Reviewed', time: 'Pending', completed: false, actor: 'Central Dispatch' },
-          { step: 3, title: 'Collection Team Assigned', time: '--', completed: false, actor: '--' },
-          { step: 4, title: 'Cleanup In Progress', time: '--', completed: false, actor: '--' },
-          { step: 5, title: 'Resolution Verification', time: '--', completed: false, actor: '--' },
-          { step: 6, title: 'Resolved', time: '--', completed: false, actor: '--' }
-        ]
-      };
-
-      const updated = [newComplaint, ...list];
-      setStoredData(STORAGE_KEYS.COMPLAINTS, updated);
-      return { success: true, data: newComplaint };
-    }
+    const res = await apiRequest('/complaints', {
+      method: 'POST',
+      body: JSON.stringify(complaintData)
+    });
+    return { success: true, data: res.data };
   },
 
   // PATCH /api/complaints/:id/status
