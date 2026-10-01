@@ -2,8 +2,7 @@ services:
   # 1. Nexus Clean Backend API Service
   - type: web
     name: nexus-clean-backend
-    runtime: node
-    plan: free
+    env: node
     rootDir: backend
     buildCommand: npm install
     startCommand: npm start
@@ -31,8 +30,7 @@ services:
   # 2. Nexus Clean Frontend SPA Static Site
   - type: web
     name: nexus-clean-frontend
-    runtime: static
-    plan: free
+    env: static
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
